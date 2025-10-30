@@ -1,36 +1,46 @@
-# ============================================================
-# Étape 1 : Utiliser une image Python stable et légère
-# ============================================================
+# ==========================
+# 🐍 Étape 1 : Choisir l’image Python
+# ==========================
 FROM python:3.11-slim
 
-# ============================================================
-# Étape 2 : Définir le répertoire de travail
-# ============================================================
+# ==========================
+# 📁 Étape 2 : Créer un répertoire de travail
+# ==========================
 WORKDIR /app
 
-# ============================================================
-# Étape 3 : Copier les fichiers nécessaires dans le conteneur
-# ============================================================
+# ==========================
+# 📦 Étape 3 : Copier les fichiers nécessaires
+# ==========================
+COPY requirements.txt .
+
+# ==========================
+# 🧰 Étape 4 : Installer les dépendances
+# ==========================
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    python3-dev \
+    libatlas-base-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ==========================
+# 🗂️ Étape 5 : Copier le reste du code
+# ==========================
 COPY . .
 
-# ============================================================
-# Étape 4 : Mettre à jour pip et installer les dépendances
-# ------------------------------------------------------------
-# --no-cache-dir évite de stocker les fichiers d’installation
-# ============================================================
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# ==========================
+# 🌍 Étape 6 : Variables d'environnement
+# ==========================
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=5000
 
-# ============================================================
-# Étape 5 : Exposer le port sur lequel l’app tourne
-# ============================================================
-EXPOSE 5000
-
-# ============================================================
-# Étape 6 : Commande pour lancer Flask via Gunicorn
-# ------------------------------------------------------------
-# "app:app" fait référence au fichier app.py et à l'objet Flask nommé app
-# Si ton fichier principal s’appelle autrement (ex: main.py),
-# remplace app:app par main:app
-# ============================================================
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+# ==========================
+# 🚀 Étape 7 : Commande de lancement
+# ==========================
+# ⚠️ Important : utiliser /bin/sh -c pour que $PORT soit évalué par le shell
+CMD ["/bin/sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT}"]
