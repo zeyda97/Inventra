@@ -1,0 +1,11 @@
+# Environnements
+.env
+*.env
+__pycache__/
+.venv/
+instance/
+*.pyc
+*.pyo
+*.pyd
+*.db
+.DS_Store
