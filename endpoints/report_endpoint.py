@@ -1,4 +1,4 @@
-ffrom flask import Blueprint, jsonify
+from flask import Blueprint, jsonify
 import unicodedata
 from datetime import datetime, timedelta
 from collections import defaultdict
