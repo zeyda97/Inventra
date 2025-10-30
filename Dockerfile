@@ -20,12 +20,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     python3-dev \
-    libatlas-base-dev \
+    libopenblas-dev \
     libfreetype6-dev \
     libpng-dev \
     && pip install --no-cache-dir -r requirements.txt \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 # ==========================
 # 🗂️ Étape 5 : Copier le reste du code
