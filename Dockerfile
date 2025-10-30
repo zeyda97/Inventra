@@ -44,4 +44,8 @@ ENV PORT=5000
 # 🚀 Étape 7 : Commande de lancement
 # ==========================
 # ⚠️ Important : utiliser /bin/sh -c pour que $PORT soit évalué par le shell
-CMD ["/bin/sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT}"]
+#CMD ["/bin/sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT}"]
+# ==========================
+# 🚀 Étape 7 : Commande de lancement (APRÈS - CORRIGÉE)
+# ==========================
+CMD ["/bin/sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT} --timeout 300 --workers 1 --preload"]

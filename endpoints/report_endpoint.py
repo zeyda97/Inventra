@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+ffrom flask import Blueprint, jsonify
 import unicodedata
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -19,22 +19,35 @@ def normalize_text(text):
 # === 📊 Fonction de génération des données (sans HTTP) ===
 def generate_report_data():
     """Combine inventaire, commandes et produits en un rapport consolidé (logique pure)"""
+    # ✅ AJOUT DES LOGS DE DEBUG
+    import time
+    start_time = time.time()
+    print(f"🚀 [{time.strftime('%H:%M:%S')}] Début de génération du rapport...")
+    
     try:
         # ✅ Appels directs aux fonctions métier au lieu de HTTP
         from endpoints.inventory_endpoint import generate_inventory_data
         from endpoints.orders_endpoint import generate_orders_data
         
+        print(f"📦 [{time.strftime('%H:%M:%S')}] Chargement inventaire...")
         inventory = generate_inventory_data()
+        print(f"✅ [{time.strftime('%H:%M:%S')}] Inventaire chargé: {len(inventory)} produits")
+        
+        print(f"🛒 [{time.strftime('%H:%M:%S')}] Chargement commandes...")
         orders_data = generate_orders_data()
         orders = orders_data.get("orders", [])
+        print(f"✅ [{time.strftime('%H:%M:%S')}] Commandes chargées: {len(orders)} commandes")
         
     except Exception as e:
+        print(f"❌ [{time.strftime('%H:%M:%S')}] Erreur chargement données: {e}")
         raise Exception(f"Erreur de chargement des données : {e}")
 
     # --- Index inventaire ---
+    print(f"🔍 [{time.strftime('%H:%M:%S')}] Création index inventaire...")
     inventory_by_variant = {str(p.get("Variant ID")): p for p in inventory if p.get("Variant ID")}
     inventory_by_sku = {normalize_text(p.get("SKU")): p for p in inventory if p.get("SKU")}
     inventory_by_name = {normalize_text(p.get("Produit")): p for p in inventory}
+    print(f"✅ [{time.strftime('%H:%M:%S')}] Index créés: {len(inventory_by_variant)} variants, {len(inventory_by_sku)} SKUs")
 
     # --- Fenêtres temporelles pour les ventes ---
     now = datetime.utcnow()
@@ -46,9 +59,15 @@ def generate_report_data():
     }
 
     # --- Dictionnaire des ventes cumulées ---
+    print(f"💰 [{time.strftime('%H:%M:%S')}] Calcul des ventes...")
     sales_data = {}
+    orders_processed = 0
 
     for order in orders:
+        orders_processed += 1
+        if orders_processed % 50 == 0:
+            print(f"📊 [{time.strftime('%H:%M:%S')}] Traitement commande {orders_processed}/{len(orders)}...")
+            
         created_at = order.get("created_at")
         if not created_at:
             continue
@@ -91,7 +110,10 @@ def generate_report_data():
             if order_date >= periods["V365"]:
                 sales_data[key]["V365"] += qty
 
+    print(f"✅ [{time.strftime('%H:%M:%S')}] Ventes calculées: {len(sales_data)} produits avec ventes")
+
     # === Construction du rapport final ===
+    print(f"📈 [{time.strftime('%H:%M:%S')}] Construction rapport final...")
     report_data = []
     for product in inventory:
         variant_id = str(product.get("Variant ID"))
@@ -129,6 +151,7 @@ def generate_report_data():
         report_data.append(produit_report)
 
     # === Regroupement par marque ===
+    print(f"🏷️ [{time.strftime('%H:%M:%S')}] Regroupement par marque...")
     marques = defaultdict(lambda: {"Marque": "", "Produits": []})
     for r in report_data:
         marque = (r.get("Marque") or "Inconnue").strip()
@@ -146,6 +169,12 @@ def generate_report_data():
             "Suggestion (3m)": r.get("Suggestion (3m)"),
             "Alerte": r.get("Alerte")
         })
+
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f"🎉 [{time.strftime('%H:%M:%S')}] Rapport généré avec succès!")
+    print(f"⏱️  Temps total: {total_time:.2f} secondes")
+    print(f"📊 Produits: {len(report_data)}, Marques: {len(marques)}")
 
     return list(marques.values())
 
