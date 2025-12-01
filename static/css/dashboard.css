@@ -8,7 +8,10 @@ body { background-color: #f9fafb; }
   padding: 10px;
   border-radius: 8px;
   margin-top: 30px;
+  font-size: 1.3rem;
+  text-align: center;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -18,19 +21,94 @@ table {
   border-radius: 8px;
   overflow: hidden;
 }
+
 th, td {
   text-align: center;
   padding: 10px;
   border-bottom: 1px solid #e5e7eb;
 }
+
 th {
   background-color: #e0e7ff;
   color: #111827;
   font-weight: 600;
 }
+
 tr:nth-child(even) {
   background-color: #f3f4f6;
 }
+
+/* ✅ MISE EN ÉVIDENCE DE LA COLONNE STOCK (2ème colonne) */
+table th:nth-child(2),
+table td:nth-child(2) {
+  border-left: 3px solid #4f46e5;   /* Bordure gauche indigo */
+  border-right: 3px solid #4f46e5;  /* Bordure droite indigo */
+  background-color: #eef2ff;        /* Fond indigo très clair */
+  font-weight: bold;                /* Texte en gras */
+  text-align: center;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* En-tête de la colonne Stock */
+table th:nth-child(2) {
+  background-color: #ddd6fe;        /* Fond violet clair pour le header */
+  color: #4338ca;                   /* Texte indigo foncé */
+  font-weight: 700;
+}
+
+/* Couleurs conditionnelles pour les stocks */
+table td:nth-child(2).stock-zero {
+  background-color: #fee2e2;        /* Rouge clair */
+  color: #991b1b;                   /* Rouge foncé */
+  font-weight: bold;
+  border-left: 3px solid #dc2626;   /* Bordure rouge */
+  border-right: 3px solid #dc2626;
+}
+
+table td:nth-child(2).stock-faible {
+  background-color: #fef3c7;        /* Jaune clair */
+  color: #92400e;                   /* Jaune foncé */
+  font-weight: bold;
+  border-left: 3px solid #f59e0b;   /* Bordure orange */
+  border-right: 3px solid #f59e0b;
+}
+
+/* ✅ LIGNE DE TOTAUX */
+.totaux-row {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white;
+  font-weight: bold;
+  border-top: 3px solid #4338ca;
+  border-bottom: 3px solid #4338ca;
+}
+
+.totaux-row td {
+  padding: 14px 10px !important;
+  border-bottom: 3px solid #4338ca !important;
+}
+
+.totaux-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: left !important;
+  padding-left: 20px !important;
+}
+
+.totaux-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fbbf24 !important;
+  text-align: center !important;
+}
+
+/* Hover sur la ligne de totaux */
+.totaux-row:hover {
+  background: linear-gradient(135deg, #5b21b6 0%, #6b21a8 100%) !important;
+  transform: scale(1.01);
+  transition: all 0.2s;
+}
+
 .alerte-ok { color: green; font-weight: bold; }
 .alerte-rupture { color: red; font-weight: bold; }
 
@@ -43,6 +121,7 @@ tr:nth-child(even) {
   width: 100%;
   transition: all 0.3s;
 }
+
 .search-input:focus {
   border-color: #4f46e5;
   box-shadow: 0 0 6px #c7d2fe;
@@ -55,6 +134,7 @@ tr:nth-child(even) {
   padding: 8px 12px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
+
 .brand-select {
   padding: 8px;
   border-radius: 6px;
@@ -62,12 +142,14 @@ tr:nth-child(even) {
   background: white;
   outline: none;
 }
+
 .brand-select:hover {
   border-color: #4f46e5;
 }
 
 /* --- Pagination --- */
 .pagination-container { margin-top: 20px; }
+
 .pagination-btn {
   background-color: #4f46e5;
   color: white;
@@ -78,13 +160,16 @@ tr:nth-child(even) {
   font-weight: 500;
   transition: all 0.2s;
 }
+
 .pagination-btn:hover {
   background-color: #4338ca;
 }
+
 .pagination-btn:disabled {
   background-color: #a5b4fc;
   cursor: not-allowed;
 }
+
 .marque-section {
   opacity: 0;
   transform: translateY(10px);
@@ -95,6 +180,7 @@ tr:nth-child(even) {
   opacity: 1;
   transform: translateY(0);
 }
+
 .fade-in {
   opacity: 1;
   transform: translateY(0);
@@ -107,3 +193,28 @@ tr:nth-child(even) {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+/* Impression : garde les bordures et couleurs */
+@media print {
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    border-left: 2px solid #000 !important;
+    border-right: 2px solid #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* .totaux-row {
+    background: #e0e7ff !important;
+    color: #000 !important;
+    border-top: 2px solid #000 !important;
+    border-bottom: 2px solid #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+   */
+  .totaux-value {
+    color: #4338ca !important;
+    font-weight: 700;
+  }
+  
+}
