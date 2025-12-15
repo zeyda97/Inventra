@@ -4,7 +4,7 @@ let filteredSections = [];
 let currentPage = 1;
 const rowsPerPage = 1;
 
-// ✅ Fonction d'initialisation du dashboard (votre code original)
+// ✅ Fonction d'initialisation du dashboard
 function initializeDashboard() {
   marqueSections = Array.from(document.querySelectorAll(".marque-section"));
   const brandFilter = document.getElementById("brandFilter");
@@ -21,7 +21,6 @@ function initializeDashboard() {
     const end = start + rowsPerPage;
     const totalPages = Math.ceil(filteredSections.length / rowsPerPage) || 1;
 
-    // 🔄 Masquer les sections existantes avec effet de fade
     marqueSections.forEach(section => {
       section.classList.remove("fade-in");
       section.classList.add("fade-out");
@@ -30,7 +29,6 @@ function initializeDashboard() {
       }, 200);
     });
 
-    // 🎬 Afficher les nouvelles sections avec un petit décalage
     const visibleSections = filteredSections.slice(start, end);
     setTimeout(() => {
       visibleSections.forEach((section, i) => {
@@ -42,13 +40,11 @@ function initializeDashboard() {
       });
     }, 200);
 
-    // ⚙️ Pagination
     pageInfo.textContent = `Page ${currentPage} / ${totalPages}`;
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
   }
 
-  // 🔍 Recherche
   searchInput.addEventListener("input", e => {
     const term = e.target.value.toLowerCase();
     filteredSections = marqueSections.filter(section => {
@@ -68,7 +64,6 @@ function initializeDashboard() {
     renderPage();
   });
 
-  // 🏷️ Filtre
   brandFilter.addEventListener("change", e => {
     const selected = e.target.value.toLowerCase();
     if (!selected) filteredSections = [...marqueSections];
@@ -108,7 +103,6 @@ async function loadDashboardData() {
     const data = await response.json();
     console.log('✅ Données chargées:', data.length, 'marques');
     
-    // Afficher l'heure de mise à jour
     const now = new Date();
     document.getElementById('last-update').textContent = 
       now.toLocaleString('fr-CA', { 
@@ -119,7 +113,6 @@ async function loadDashboardData() {
         minute: '2-digit'
       });
     
-    // Remplir le filtre des marques
     const brandFilter = document.getElementById('brandFilter');
     brandFilter.innerHTML = '<option value="">Marque</option>';
     data.forEach(marque => {
@@ -129,7 +122,6 @@ async function loadDashboardData() {
       brandFilter.appendChild(option);
     });
     
-    // Générer le HTML du dashboard
     const container = document.getElementById('dashboard-container');
     container.innerHTML = data.map(marque => `
       <div class="marque-section" data-marque="${marque.Marque}">
@@ -140,6 +132,7 @@ async function loadDashboardData() {
             <tr class="totaux-row">
               <td class="totaux-label">💰 TOTAUX (Net Sales)</td>
               <td class="totaux-value">${Math.round(marque.Totaux["Valeur Stock Total ($)"]).toLocaleString('fr-CA')} $</td>
+              <td class="totaux-value">${Math.round(marque.Totaux["Coût Total ($)"]).toLocaleString('fr-CA')} $</td>
               <td class="totaux-value">${Math.round(marque.Totaux["Montant V60 Total ($)"]).toLocaleString('fr-CA')} $</td>
               <td class="totaux-value">${Math.round(marque.Totaux["Montant V120 Total ($)"]).toLocaleString('fr-CA')} $</td>
               <td class="totaux-value">${Math.round(marque.Totaux["Montant V180 Total ($)"]).toLocaleString('fr-CA')} $</td>
@@ -153,6 +146,7 @@ async function loadDashboardData() {
             <tr>
               <th>Produit</th>
               <th>Stock</th>
+              <th>Coût ($)</th>
               <th>V60</th>
               <th>V120</th>
               <th>V180</th>
@@ -163,34 +157,47 @@ async function loadDashboardData() {
           </thead>
           
           <tbody>
-            ${marque.Produits.map(p => `
-              <tr class="product-row">
-                <td>${p.Produit}</td>
-                <td class="${p.Stock === 0 ? 'stock-zero' : p.Stock < 5 ? 'stock-faible' : ''}">
-                  ${p.Stock}
-                </td>
-                <td>${p.V60}</td>
-                <td>${p.V120}</td>
-                <td>${p.V180}</td>
-                <td>${p.V365}</td>
-                <td>${p["Suggestion (3m)"]}</td>
-                <td>
-                  <span class="${p.Alerte.includes('OK') ? 'alerte-ok' : 'alerte-rupture'}">
-                    ${p.Alerte}
-                  </span>
-                </td>
-              </tr>
-            `).join('')}
+            ${marque.Produits.map(p => {
+              // ✅ Détecter si le coût est manquant
+              const cost = p["Coût par article ($)"];
+              const isMissing = cost === 0;
+              
+              // ✅ NOUVEAU : Détecter si le produit est supprimé
+              const isDeleted = p.is_deleted === true;
+              
+              // Style pour les produits supprimés
+              const rowStyle = isDeleted ? 'background-color: #f3f4f6; opacity: 0.7;' : '';
+              
+              return `
+                <tr class="product-row" style="${rowStyle}">
+                  <td>${p.Produit}</td>
+                  <td class="${p.Stock === 0 ? 'stock-zero' : p.Stock < 5 ? 'stock-faible' : ''}">
+                    ${p.Stock}
+                  </td>
+                  <td style="${isMissing && !isDeleted ? 'background-color: #fef3c7;' : ''}">
+                    ${cost.toFixed(2)}
+                  </td>
+                  <td>${p.V60}</td>
+                  <td>${p.V120}</td>
+                  <td>${p.V180}</td>
+                  <td>${p.V365}</td>
+                  <td>${p["Suggestion (3m)"]}</td>
+                  <td>
+                    <span class="${p.Alerte.includes('OK') ? 'alerte-ok' : p.Alerte.includes('SUPPRIMÉ') ? 'alerte-rupture' : 'alerte-rupture'}">
+                      ${p.Alerte}
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
     `).join('');
     
-    // Masquer le loading, afficher le contenu
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-    
-    // ✅ Appeler la fonction d'initialisation
+                    
     initializeDashboard();
     
     console.log('✅ Dashboard affiché avec succès');
@@ -212,5 +219,4 @@ async function loadDashboardData() {
   }
 }
 
-// ✅ Démarrage au chargement de la page
 window.addEventListener('DOMContentLoaded', loadDashboardData);

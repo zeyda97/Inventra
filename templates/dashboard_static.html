@@ -12,17 +12,14 @@
     📊 Tableau de bord Inventra - Net Sales (Revenus Réels)
   </h1>
 
-  <!-- ✅ INDICATEUR DE CHARGEMENT -->
   <div id="loading" class="text-center my-8">
     <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600"></div>
     <p class="mt-4 text-lg text-gray-600 font-semibold">⏳ Chargement des données en temps réel...</p>
     <p class="text-sm text-gray-500 mt-2">Récupération depuis Shopify (25-30 secondes)</p>
   </div>
 
-  <!-- ✅ CONTENEUR PRINCIPAL (caché au départ) -->
   <div id="main-content" style="display: none;">
     
-    <!-- Boutons d'action + Dernière mise à jour -->
     <div class="flex justify-between items-center mb-4">
       <div class="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
         📅 <strong>Dernière mise à jour :</strong> <span id="last-update" class="font-semibold text-indigo-700"></span>
@@ -40,11 +37,17 @@
         >
           🖨️ Imprimer / PDF
         </button>
-        <a
+        <!-- <a
           href="{{ url_for('dashboard.export_pdf') }}"
           class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition inline-block"
         >
           📄 Exporter PDF
+        </a> -->
+        <a
+           href="{{ url_for('dashboard.export_csv') }}"
+           class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition inline-block"
+        >
+          📥 Exporter CSV
         </a>
       </div>
     </div>
@@ -55,7 +58,6 @@
       </a>
     </div>
 
-    <!-- 🔍 Barre de recherche + filtre -->
     <div class="filter-container flex flex-col md:flex-row items-center justify-between mb-6">
       <input
         type="text"
@@ -69,17 +71,12 @@
         <label for="brandFilter" class="text-gray-700 font-medium">filtre :</label>
         <select id="brandFilter" class="brand-select">
           <option value="">Marque</option>
-          <!-- ✅ Les options seront remplies par JavaScript -->
         </select>
       </div>
     </div>
 
-    <!-- 📦 Conteneur principal (vide, rempli par JS) -->
-    <div id="dashboard-container">
-      <!-- ✅ Le contenu sera généré par JavaScript -->
-    </div>
+    <div id="dashboard-container"></div>
 
-    <!-- 📄 Pagination -->
     <div class="pagination-container text-center mt-6">
       <button id="prevPage" class="pagination-btn">⬅️ Précédent</button>
       <span id="pageInfo" class="mx-3 text-gray-700"></span>
@@ -88,7 +85,6 @@
 
   </div>
 
-  <!-- ✅ LIEN VERS LE FICHIER JS -->
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>
