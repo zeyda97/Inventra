@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, send_file, Response, request
+from flask import Blueprint, render_template, send_file, Response
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
@@ -7,22 +7,13 @@ import io
 import requests
 import csv
 from io import StringIO
-import os
 
 dashboard_bp = Blueprint("dashboard", __name__)
-
-# ✅ Détection automatique de l'URL de base
-def get_base_url():
-    """Retourne l'URL de base selon l'environnement"""
-    if os.getenv("RENDER"):
-        # Sur Render, utiliser l'URL publique
-        return os.getenv("BASE_URL", "https://inventra-20jv.onrender.com")
-    else:
-        # En local
-        return "http://127.0.0.1:5000"
-
-SHOPIFY_API_URL = get_base_url()
-print(f"🌐 API URL configurée: {SHOPIFY_API_URL}")
+SHOP_NAME = os.getenv("SHOP_NAME")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+API_VER = "2024-10"
+SHOPIFY_API_URL = f"https://{SHOP_NAME}.myshopify.com/admin/api/{API_VER}"
+HEADERS = {"X-Shopify-Access-Token": ACCESS_TOKEN, "Content-Type": "application/json"}
 
 
 @dashboard_bp.route("/dashboard")
@@ -84,75 +75,65 @@ def export_pdf():
 @dashboard_bp.route("/dashboard/export/csv")
 def export_csv():
     """Exporte les données de toutes les marques en CSV (sans Suggestion)"""
-    try:
-        print("🔄 Début export CSV...")
-        print(f"🌐 Appel API: {SHOPIFY_API_URL}/report")
+    report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # En-têtes
+    writer.writerow([
+        'Marque',
+        'Produit',
+        'Stock',
+        'Coût ($)',
+        'V60',
+        'V120',
+        'V180',
+        'V365',
+        'Alerte'
+    ])
+    
+    # Données pour toutes les marques
+    for marque in report_data:
+        marque_nom = marque.get('Marque', '')
+        totaux = marque.get('Totaux', {})
         
-        report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
-        print(f"✅ Données récupérées: {len(report_data)} marques")
-        
-        output = StringIO()
-        writer = csv.writer(output)
-        
-        # En-têtes
+        # ✅ Ligne totaux - utiliser les VRAIES clés de votre structure
         writer.writerow([
-            'Marque',
-            'Produit',
-            'Stock',
-            'Coût ($)',
-            'V60',
-            'V120',
-            'V180',
-            'V365',
-            'Alerte'
+            f"💰 TOTAUX - {marque_nom}",
+            'Net Sales',
+            round(totaux.get('Valeur Stock Total ($)', 0)),
+            round(totaux.get('Coût Total ($)', 0)),
+            round(totaux.get('Montant V60 Total ($)', 0)),
+            round(totaux.get('Montant V120 Total ($)', 0)),
+            round(totaux.get('Montant V180 Total ($)', 0)),
+            round(totaux.get('Montant V365 Total ($)', 0)),
+            ''
         ])
         
-        # Données pour toutes les marques
-        for marque in report_data:
-            marque_nom = marque.get('Marque', '')
-            totaux = marque.get('Totaux', {})
-            
-            # Ligne totaux (sans emoji pour éviter problèmes d'encodage)
+        # Produits de la marque
+        for produit in marque.get('Produits', []):
             writer.writerow([
-                f"TOTAUX - {marque_nom}",
-                'Net Sales',
-                round(totaux.get('Valeur Stock Total ($)', 0)),
-                round(totaux.get('Coût Total ($)', 0)),
-                round(totaux.get('Montant V60 Total ($)', 0)),
-                round(totaux.get('Montant V120 Total ($)', 0)),
-                round(totaux.get('Montant V180 Total ($)', 0)),
-                round(totaux.get('Montant V365 Total ($)', 0)),
-                ''
+                marque_nom,
+                produit.get('Produit', ''),
+                produit.get('Stock', 0),
+                f"{produit.get('Coût par article ($)', 0):.2f}",
+                produit.get('V60', 0),
+                produit.get('V120', 0),
+                produit.get('V180', 0),
+                produit.get('V365', 0),
+                produit.get('Alerte', '')
             ])
-            
-            # Produits de la marque
-            for produit in marque.get('Produits', []):
-                writer.writerow([
-                    marque_nom,
-                    produit.get('Produit', ''),
-                    produit.get('Stock', 0),
-                    f"{produit.get('Coût par article ($)', 0):.2f}",
-                    produit.get('V60', 0),
-                    produit.get('V120', 0),
-                    produit.get('V180', 0),
-                    produit.get('V365', 0),
-                    produit.get('Alerte', '')
-                ])
-            
-            # Ligne vide entre marques
-            writer.writerow([])
         
-        print("✅ CSV généré avec succès")
-        
-        output.seek(0)
-        return Response(
-            output.getvalue(),
-            mimetype='text/csv',
-            headers={'Content-Disposition': 'attachment; filename=inventra_toutes_marques.csv'}
-        )
-        
-    except Exception as e:
-        print(f"❌ ERREUR EXPORT CSV: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return f"Erreur: {str(e)}", 500
+        # Ligne vide entre marques
+        writer.writerow([])
+    
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=inventra_toutes_marques.csv'}
+    )
+
+
+
