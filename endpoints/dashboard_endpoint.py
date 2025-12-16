@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, send_file, Response
+from flask import Blueprint, render_template, send_file, Response, request
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 import io
+import requests
 import csv
 from io import StringIO
 import os
@@ -24,21 +25,29 @@ HEADERS = {"X-Shopify-Access-Token": ACCESS_TOKEN, "Content-Type": "application/
 print(f"🏪 Shop: {SHOP_NAME}")
 
 
+def get_api_url():
+    """Retourne l'URL de base de l'API selon l'environnement"""
+    try:
+        # Utiliser l'URL de la requête actuelle
+        return request.url_root.rstrip('/')
+    except:
+        # Fallback si pas de contexte de requête
+        return os.getenv("RENDER_EXTERNAL_URL", "http://127.0.0.1:5000")
+
+
 @dashboard_bp.route("/dashboard")
 def dashboard():
     """Affiche le tableau de bord principal (statique)"""
-    # ✅ Import de la fonction depuis app.py
-    from app import get_report_data
-    report_data = get_report_data()
+    SHOPIFY_API_URL = get_api_url()
+    report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
     return render_template("dashboard_static.html", data=report_data)
 
 
 @dashboard_bp.route("/dashboard/export/pdf")
 def export_pdf():
     """Génère et télécharge le rapport Inventra au format PDF"""
-    # ✅ Import de la fonction depuis app.py
-    from app import get_report_data
-    report_data = get_report_data()
+    SHOPIFY_API_URL = get_api_url()
+    report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
 
     # Création d'un flux mémoire temporaire
     buffer = io.BytesIO()
@@ -90,9 +99,12 @@ def export_csv():
     try:
         print("🔄 Début export CSV...")
         
-        # ✅ Appel direct de la fonction au lieu de requête HTTP
-        from app import get_report_data
-        report_data = get_report_data()
+        # ✅ Utiliser l'URL de la requête actuelle
+        SHOPIFY_API_URL = get_api_url()
+        print(f"🌐 API URL: {SHOPIFY_API_URL}")
+        
+        # ✅ Requête HTTP vers /report
+        report_data = requests.get(f"{SHOPIFY_API_URL}/report", timeout=30).json()
         
         print(f"✅ Données récupérées: {len(report_data)} marques")
         
