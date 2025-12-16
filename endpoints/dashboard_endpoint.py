@@ -7,6 +7,8 @@ import io
 import requests
 import csv
 from io import StringIO
+import os
+
 
 dashboard_bp = Blueprint("dashboard", __name__)
 SHOP_NAME = os.getenv("SHOP_NAME")
