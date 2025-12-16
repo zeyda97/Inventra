@@ -99,12 +99,11 @@ def export_csv():
     try:
         print("🔄 Début export CSV...")
         
-        # ✅ Utiliser l'URL de la requête actuelle
         SHOPIFY_API_URL = get_api_url()
         print(f"🌐 API URL: {SHOPIFY_API_URL}")
         
-        # ✅ Requête HTTP vers /report
-        report_data = requests.get(f"{SHOPIFY_API_URL}/report", timeout=30).json()
+        # ✅ Augmenter le timeout à 120 secondes
+        report_data = requests.get(f"{SHOPIFY_API_URL}/report", timeout=120).json()
         
         print(f"✅ Données récupérées: {len(report_data)} marques")
         
@@ -170,8 +169,12 @@ def export_csv():
             headers={'Content-Disposition': 'attachment; filename=inventra_toutes_marques.csv'}
         )
         
+    except requests.exceptions.Timeout:
+        print("❌ TIMEOUT: Le serveur met trop de temps à répondre")
+        return "Le rapport prend trop de temps à générer. Veuillez réessayer dans quelques instants.", 504
     except Exception as e:
         print(f"❌ ERREUR EXPORT CSV: {str(e)}")
         import traceback
         traceback.print_exc()
         return f"Erreur lors de la génération du CSV: {str(e)}", 500
+
