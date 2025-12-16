@@ -4,7 +4,6 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 import io
-import requests
 import csv
 from io import StringIO
 import os
@@ -25,29 +24,19 @@ HEADERS = {"X-Shopify-Access-Token": ACCESS_TOKEN, "Content-Type": "application/
 print(f"🏪 Shop: {SHOP_NAME}")
 
 
-def get_api_url():
-    """Retourne l'URL de base de l'API selon l'environnement"""
-    try:
-        # Utiliser l'URL de la requête actuelle
-        return request.url_root.rstrip('/')
-    except:
-        # Fallback si pas de contexte de requête
-        return os.getenv("RENDER_EXTERNAL_URL", "http://127.0.0.1:5000")
-
-
 @dashboard_bp.route("/dashboard")
 def dashboard():
     """Affiche le tableau de bord principal (statique)"""
-    SHOPIFY_API_URL = get_api_url()
-    report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
+    from endpoints.report_endpoint import generate_report_data
+    report_data = generate_report_data()
     return render_template("dashboard_static.html", data=report_data)
 
 
 @dashboard_bp.route("/dashboard/export/pdf")
 def export_pdf():
     """Génère et télécharge le rapport Inventra au format PDF"""
-    SHOPIFY_API_URL = get_api_url()
-    report_data = requests.get(f"{SHOPIFY_API_URL}/report").json()
+    from endpoints.report_endpoint import generate_report_data
+    report_data = generate_report_data()
 
     # Création d'un flux mémoire temporaire
     buffer = io.BytesIO()
@@ -99,13 +88,11 @@ def export_csv():
     try:
         print("🔄 Début export CSV...")
         
-        SHOPIFY_API_URL = get_api_url()
-        print(f"🌐 API URL: {SHOPIFY_API_URL}")
+        # ✅ Appel DIRECT de la fonction (pas de requête HTTP)
+        from endpoints.report_endpoint import generate_report_data
+        report_data = generate_report_data()
         
-        # ✅ Augmenter le timeout à 120 secondes
-        report_data = requests.get(f"{SHOPIFY_API_URL}/report", timeout=120).json()
-        
-        print(f"✅ Données récupérées: {len(report_data)} marques")
+        print(f"✅ Données générées: {len(report_data)} marques")
         
         output = StringIO()
         writer = csv.writer(output)
@@ -169,12 +156,8 @@ def export_csv():
             headers={'Content-Disposition': 'attachment; filename=inventra_toutes_marques.csv'}
         )
         
-    except requests.exceptions.Timeout:
-        print("❌ TIMEOUT: Le serveur met trop de temps à répondre")
-        return "Le rapport prend trop de temps à générer. Veuillez réessayer dans quelques instants.", 504
     except Exception as e:
         print(f"❌ ERREUR EXPORT CSV: {str(e)}")
         import traceback
         traceback.print_exc()
         return f"Erreur lors de la génération du CSV: {str(e)}", 500
-
