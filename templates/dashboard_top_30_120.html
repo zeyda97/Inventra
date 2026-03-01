@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – Best Sellers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      margin-top: 40px;
+    }
+
+    p {
+      color: #555;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #aa00ba;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+
+    .loading {
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📊 Best-Sellers</h1>
+<p class="loading">Chargement des données…</p>
+
+<!-- ================= 30 JOURS ================= -->
+
+<h2>⚡ Top ventes – 30 jours</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Produit</th>
+      <th>Variante</th>
+      <th>SKU</th>
+      <th>Net items sold</th>
+    </tr>
+  </thead>
+  <tbody id="best-30"></tbody>
+</table>
+
+<!-- ================= 120 JOURS ================= -->
+<h2>🔥 Top ventes – 120 jours</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Produit</th>
+      <th>Variante</th>
+      <th>SKU</th>
+      <th>Net items sold</th>
+    </tr>
+  </thead>
+  <tbody id="best-120"></tbody>
+</table>
+
+
+
+<script>
+fetch("/data/best_sellers")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Erreur API best_sellers");
+    }
+    return response.json();
+  })
+  .then(data => {
+    document.querySelector("p").innerText =
+      "Données générées le : " + data.generated_at;
+
+    const fillTable = (tbodyId, items) => {
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="5">Aucune donnée</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.product_title}</td>
+          <td>${item.variant_title}</td>
+          <td>${item.sku || "-"}</td>
+          <td>${item.net_items_sold}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    };
+
+    fillTable("best-120", data.last_120_days);
+    fillTable("best-30", data.last_30_days);
+  })
+  .catch(error => {
+    console.error(error);
+    document.querySelector("p").innerText =
+      "❌ Erreur lors du chargement des best-sellers";
+  });
+</script>
+
+</body>
+</html>

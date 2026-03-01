@@ -69,9 +69,11 @@ def fetch_all_orders_graphql(since_date):
                       quantity
                       variant {{
                         id
+                        title
                       }}
                       product {{
                         id
+                        title
                         vendor
                       }}
                       originalUnitPriceSet {{
@@ -160,6 +162,7 @@ def fetch_all_orders_graphql(since_date):
     return all_orders
 
 
+
 def generate_orders_data():
     """
     Récupère TOUTES les commandes des 365 derniers jours via GraphQL
@@ -212,6 +215,10 @@ def generate_orders_data():
             
             product_gid = li.get("product", {}).get("id", "") if li.get("product") else ""
             product_id = product_gid.split('/')[-1] if product_gid else None
+
+            product_title = li.get("product", {}).get("title", "") if li.get("product") else ""
+            variant_title = li.get("variant", {}).get("title", "") if li.get("variant") else ""
+
             
             # ✅ NOUVEAU : Récupérer le vendor (marque)
             vendor = li.get("product", {}).get("vendor", "Inconnue") if li.get("product") else "Inconnue"
@@ -261,7 +268,9 @@ def generate_orders_data():
             line_items.append({
                 "sku": sku,
                 "product_id": product_id,
+                "product_title": product_title,
                 "variant_id": variant_id,
+                "variant_title": variant_title,
                 "vendor": vendor,  # ✅ NOUVEAU
                 "quantity": net_quantity,
                 "gross_sales": gross_sales,

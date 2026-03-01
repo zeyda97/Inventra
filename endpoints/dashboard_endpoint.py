@@ -31,7 +31,14 @@ def dashboard():
     report_data = generate_report_data()
     return render_template("dashboard_static.html", data=report_data)
 
+@dashboard_bp.route("/dashboard/top_30_120")
+def dashboard_top_30_120():
+  return render_template("dashboard_top_30_120.html")
 
+@dashboard_bp.route("/dashboard/best_sellers")
+def dashboard_best_sellers():
+  return render_template("dashboard_best_sellers.html")
+  
 @dashboard_bp.route("/dashboard/export/pdf")
 def export_pdf():
     """Génère et télécharge le rapport Inventra au format PDF"""

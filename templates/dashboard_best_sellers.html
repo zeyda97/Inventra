@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Best Sellers</title>
+    <style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f6f6f7;
+    margin: 40px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.subtext {
+    color: #6d7175;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.button {
+    background: #008060;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.button:hover {
+    background: #006e52;
+}
+
+.button:disabled {
+    background: #a3a3a3;
+    cursor: not-allowed;
+}
+
+.card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f1f2f3;
+    color: #202223;
+    font-weight: 600;
+}
+
+tr:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+    background: #fafafa;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-best {
+    background: #dffbe6;
+    color: #008060;
+}
+
+.badge-trending {
+    background: #fff3cd;
+    color: #946200;
+    margin-left: 6px;
+}
+
+.rank {
+    font-weight: bold;
+    color: #008060;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h1>🔥 Best Sellers</h1>
+            <div id="generated-at" class="subtext">Chargement...</div>
+        </div>
+
+        <button class="button" onclick="syncBestSellers()">
+            Synchroniser
+        </button>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Produit</th>
+                    <th>Variante</th>
+                    <th>SKU</th>
+                    <th>30 jours</th>
+                    <th>120 jours</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody id="best-sellers-body"></tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<script>
+
+async function loadBestSellers() {
+    try {
+        const response = await fetch("/data/best_sellers");
+        const data = await response.json();
+
+        document.getElementById("generated-at").innerText =
+            "Données générées le : " + data.generated_at;
+
+        const tbody = document.getElementById("best-sellers-body");
+        tbody.innerHTML = "";
+
+        data.best_sellers.forEach((item, index) => {
+
+            const monthlyAvg = item.s120 / 4;
+
+            const isTrending =
+                item.s30 >= 3 &&
+                monthlyAvg > 0 &&
+                item.s30 >= monthlyAvg * 1.4;
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.product_title}</td>
+                <td>${item.variant_title}</td>
+                <td>${item.sku || "-"}</td>
+                <td>${item.s30}</td>
+                <td>${item.s120}</td>
+                <td>
+                    <span class="badge badge-best">BEST</span>
+                    ${isTrending ? '<span class="badge badge-trending">TRENDING</span>' : ''}
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error("Erreur chargement best sellers", err);
+    }
+}
+
+
+async function syncBestSellers() {
+
+    const button = document.querySelector("button");
+    button.disabled = true;
+    button.innerText = "Synchronisation en cours...";
+
+    try {
+        const response = await fetch("/sync/best_sellers_full");
+        const data = await response.json();
+
+        if (data.error) {
+            alert("Erreur : " + data.error);
+        } else {
+            alert(
+                "✅ Synchronisation terminée\n\n" +
+                "Mis à jour : " + data.updated_best_sellers + "\n" +
+                "Réinitialisés : " + data.reset_old_best_sellers
+            );
+
+            // 🔥 recharge automatiquement les données
+            await loadBestSellers();
+        }
+
+    } catch (err) {
+        alert("Erreur réseau pendant la synchronisation");
+        console.error(err);
+    }
+
+    button.disabled = false;
+    button.innerText = "Mettre à jour les Best Sellers";
+}
+
+
+// Chargement initial
+loadBestSellers();
+
+</script>
+
+
+
+
+</body>
+</html>

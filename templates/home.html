@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventra Admin</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100vh;
+            background: #1f2937;
+            color: white;
+            position: fixed;
+            width: 250px;
+            padding-top: 20px;
+        }
+
+        .sidebar h4 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .sidebar a {
+            color: #cbd5e1;
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #374151;
+            color: white;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Main content */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+        }
+
+        .card-dashboard {
+            border: none;
+            border-radius: 15px;
+            transition: 0.2s;
+        }
+
+        .card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4>Inventra</h4>
+
+    <a href="/dashboard_static">
+        <i class="bi bi-speedometer2"></i> Dashboard Principal
+    </a>
+
+    <a href="{{ url_for('dashboard.dashboard_best_sellers') }}">
+        <i class="bi bi-fire"></i> Best Sellers
+    </a>
+
+    <a href="{{ url_for('dashboard.dashboard_top_30_120') }}">
+        <i class="bi bi-graph-up"></i> Top 30 / 120
+    </a>
+
+    <a href="/report">
+        <i class="bi bi-file-earmark-text"></i> Rapport JSON
+    </a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard Admin</h2>
+        <span class="text-muted">Shopify Reporting</span>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Card 1 -->
+        <div class="col-md-4">
+            <div class="card card-dashboard p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Dashboard</h6>
+                        <h4>Principal</h4>
+                    </div>
+                    <i class="bi bi-speedometer2 stat-icon text-primary"></i>
+                </div>
+                <a href="/dashboard_static" class="btn btn-primary mt-3 w-100">
+                    Ouvrir
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-md-4">
+            <div class="card card-dashboard p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Ventes</h6>
+                        <h4>Best Sellers</h4>
+                    </div>
+                    <i class="bi bi-fire stat-icon text-danger"></i>
+                </div>
+                <a href="{{ url_for('dashboard.dashboard_best_sellers') }}" 
+                   class="btn btn-danger mt-3 w-100">
+                    Voir
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-md-4">
+            <div class="card card-dashboard p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted">Analyse</h6>
+                        <h4>Top 30 / 120</h4>
+                    </div>
+                    <i class="bi bi-graph-up stat-icon text-success"></i>
+                </div>
+                <a href="{{ url_for('dashboard.dashboard_top_30_120') }}" 
+                   class="btn btn-success mt-3 w-100">
+                    Voir
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
