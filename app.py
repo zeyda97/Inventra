@@ -21,8 +21,7 @@ app.register_blueprint(best_sellers_bp)
 
 @app.route("/")
 def home():
-    """Redirige automatiquement vers le tableau de bord"""
-    return redirect(url_for('dashboard_static'))
+    return redirect(url_for("home_page"))
 
 @app.route("/home")
 def home_page():
