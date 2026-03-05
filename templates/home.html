@@ -1,160 +1,286 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Inventra Admin</title>
+<meta charset="UTF-8">
+<title>Rapport Inventra</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<style>
 
-    <style>
-        body {
-            background-color: #f4f6f9;
-            overflow-x: hidden;
-        }
+body{
+background:#faf9f7;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+color:#111;
+}
 
-        /* Sidebar */
-        .sidebar {
-            height: 100vh;
-            background: #1f2937;
-            color: white;
-            position: fixed;
-            width: 250px;
-            padding-top: 20px;
-        }
+/* HEADER */
 
-        .sidebar h4 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
+.header{
+padding:60px 0 40px 0;
+border-bottom:1px solid #e5e5e5;
+}
 
-        .sidebar a {
-            color: #cbd5e1;
-            padding: 12px 20px;
-            display: block;
-            text-decoration: none;
-            transition: 0.2s;
-        }
+.header h1{
+font-weight:500;
+font-size:36px;
+letter-spacing:-0.5px;
+}
 
-        .sidebar a:hover {
-            background: #374151;
-            color: white;
-            border-left: 4px solid #3b82f6;
-        }
+.header p{
+color:#777;
+margin-top:10px;
+}
 
-        /* Main content */
-        .content {
-            margin-left: 250px;
-            padding: 40px;
-        }
+/* NAV */
 
-        .card-dashboard {
-            border: none;
-            border-radius: 15px;
-            transition: 0.2s;
-        }
+.nav-app{
+margin-top:30px;
+display:flex;
+gap:25px;
+font-size:14px;
+}
 
-        .card-dashboard:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
+.nav-app a{
+text-decoration:none;
+color:#444;
+padding-bottom:6px;
+border-bottom:2px solid transparent;
+}
 
-        .stat-icon {
-            font-size: 28px;
-        }
-    </style>
+.nav-app a:hover{
+border-color:#111;
+color:#111;
+}
+
+/* CONTAINER */
+
+.container-app{
+max-width:1000px;
+margin:auto;
+padding-top:40px;
+}
+
+/* CARDS */
+
+.card-dashboard{
+background:white;
+border:1px solid #e6e6e6;
+border-radius:6px;
+padding:35px;
+transition:0.2s;
+}
+
+.card-dashboard:hover{
+border-color:#111;
+}
+
+/* MAIN CARD */
+
+.card-main{
+background:#111;
+color:white;
+border:none;
+}
+
+.card-main p{
+color:#ccc;
+}
+
+/* BUTTON */
+
+.btn-open{
+background:#111;
+color:white;
+border:none;
+border-radius:4px;
+padding:10px 16px;
+font-size:14px;
+}
+
+.btn-open:hover{
+background:#333;
+}
+
+.btn-main{
+background:white;
+color:#111;
+border:none;
+border-radius:4px;
+padding:10px 16px;
+font-weight:500;
+}
+
+.btn-main:hover{
+background:#eee;
+}
+
+.section-label{
+font-size:12px;
+letter-spacing:1px;
+text-transform:uppercase;
+color:#888;
+margin-bottom:5px;
+}
+
+.card-title{
+font-size:22px;
+font-weight:500;
+margin-bottom:20px;
+}
+
+</style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h4>Inventra</h4>
+<div class="container-app">
 
-    <a href="/dashboard_static">
-        <i class="bi bi-speedometer2"></i> Dashboard Principal
-    </a>
+<div class="header">
 
-    <a href="{{ url_for('dashboard.dashboard_best_sellers') }}">
-        <i class="bi bi-fire"></i> Best Sellers
-    </a>
+<h1>Rapport Inventra</h1>
+<p>Analyse des ventes et performances produits</p>
 
-    <a href="{{ url_for('dashboard.dashboard_top_30_120') }}">
-        <i class="bi bi-graph-up"></i> Top 30 / 120
-    </a>
+<div class="nav-app">
 
-    <a href="/report">
-        <i class="bi bi-file-earmark-text"></i> Rapport JSON
-    </a>
-</div>
+<a href="/dashboard_static">Rapport de vente</a>
 
-<!-- MAIN CONTENT -->
-<div class="content">
+<a href="{{ url_for('dashboard.dashboard_best_sellers') }}">
+Best Sellers
+</a>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Dashboard Admin</h2>
-        <span class="text-muted">Shopify Reporting</span>
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Card 1 -->
-        <div class="col-md-4">
-            <div class="card card-dashboard p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Dashboard</h6>
-                        <h4>Principal</h4>
-                    </div>
-                    <i class="bi bi-speedometer2 stat-icon text-primary"></i>
-                </div>
-                <a href="/dashboard_static" class="btn btn-primary mt-3 w-100">
-                    Ouvrir
-                </a>
-            </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="col-md-4">
-            <div class="card card-dashboard p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Ventes</h6>
-                        <h4>Best Sellers</h4>
-                    </div>
-                    <i class="bi bi-fire stat-icon text-danger"></i>
-                </div>
-                <a href="{{ url_for('dashboard.dashboard_best_sellers') }}" 
-                   class="btn btn-danger mt-3 w-100">
-                    Voir
-                </a>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-md-4">
-            <div class="card card-dashboard p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted">Analyse</h6>
-                        <h4>Top 30 / 120</h4>
-                    </div>
-                    <i class="bi bi-graph-up stat-icon text-success"></i>
-                </div>
-                <a href="{{ url_for('dashboard.dashboard_top_30_120') }}" 
-                   class="btn btn-success mt-3 w-100">
-                    Voir
-                </a>
-            </div>
-        </div>
-
-    </div>
+<a href="{{ url_for('dashboard.dashboard_top_30_120') }}">
+Top 20 / Top 130
+</a>
 
 </div>
 
+</div>
+
+
+<div class="row g-4 mt-4">
+
+<!-- RAPPORT PRINCIPAL -->
+
+<div class="col-md-12">
+
+<div class="card-dashboard card-main">
+
+<div class="section-label">
+Analyse globale
+</div>
+
+<div class="card-title">
+Rapport de vente
+</div>
+
+<p>
+Vue complète des ventes, produits performants et tendances.
+</p>
+
+<a href="/dashboard_static" class="btn btn-main mt-3">
+Voir le rapport complet
+</a>
+
+</div>
+
+</div>
+
+
+<!-- BEST SELLERS -->
+
+<div class="col-md-6">
+
+<div class="card-dashboard">
+
+<div class="section-label">
+Produits
+</div>
+
+<div class="card-title">
+Best Sellers
+</div>
+
+<p>
+Liste des produits les plus vendus sur la période.
+</p>
+
+<a href="{{ url_for('dashboard.dashboard_best_sellers') }}" class="btn btn-open mt-3">
+Voir l'analyse
+</a>
+
+</div>
+
+</div>
+
+
+<!-- TOP -->
+
+<div class="col-md-6">
+
+<div class="card-dashboard">
+
+<div class="section-label">
+Analyse produits
+</div>
+
+<div class="card-title">
+Top 20 / Top 130
+</div>
+
+<p>
+Classement des variantes les plus vendues.
+</p>
+
+<a href="{{ url_for('dashboard.dashboard_top_30_120') }}" class="btn btn-open mt-3">
+Voir l'analyse
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+let loading = false;
+
+document.querySelectorAll("a.btn-open, a.btn-main").forEach(button => {
+
+button.addEventListener("click", function(e){
+
+    if(loading){
+        e.preventDefault();
+        return;
+    }
+
+    e.preventDefault(); // stop navigation immédiate
+
+    loading = true;
+
+    const btn = this;
+    const url = btn.href;
+
+    btn.classList.add("disabled");
+    btn.style.pointerEvents = "none";
+    btn.style.opacity = "0.6";
+
+    btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Chargement...
+    `;
+
+    // laisse le temps d'afficher le spinner
+    setTimeout(()=>{
+        window.location.href = url;
+    },200);
+
+});
+
+});
+
+</script>
 </body>
 </html>

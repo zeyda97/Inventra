@@ -126,6 +126,16 @@ tr:hover {
             <div id="generated-at" class="subtext">Chargement...</div>
         </div>
 
+        <div style="display:flex; gap:10px;">
+            <button id="back-btn" class="button" style="background:#e1e3e5; color:#202223;">
+                ← Retour
+            </button>
+
+            <button id="refresh-btn" class="button" style="background:#f1f2f3; color:#202223;">
+                ⟳ Actualiser
+            </button>
+         </div>
+
         <button class="button" onclick="syncBestSellers()">
             Synchroniser
         </button>
@@ -204,7 +214,7 @@ async function syncBestSellers() {
     button.innerText = "Synchronisation en cours...";
 
     try {
-        const response = await fetch("/sync/best_sellers_full");
+        const response = await fetch("/sync/manual");
         const data = await response.json();
 
         if (data.error) {
@@ -232,7 +242,24 @@ async function syncBestSellers() {
 
 // Chargement initial
 loadBestSellers();
+// Bouton Retour
+document.getElementById("back-btn").addEventListener("click", () => {
+    window.history.back();
+});
 
+// Bouton Actualiser
+document.getElementById("refresh-btn").addEventListener("click", async () => {
+
+    const btn = document.getElementById("refresh-btn");
+
+    btn.disabled = true;
+    btn.innerText = "Actualisation...";
+
+    await loadBestSellers();
+
+    btn.innerText = "⟳ Actualiser";
+    btn.disabled = false;
+});
 </script>
 
 
