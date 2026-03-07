@@ -420,4 +420,19 @@ def sync_best_sellers_full():
         return jsonify({"error": str(e)}), 500
 
 
+@best_sellers_bp.route("/sync/manual")
+def manual_sync():
+    result = run_full_best_seller_sync()
+    return jsonify(result)
 
+
+@best_sellers_bp.route("/sync/cron")
+def cron_sync():
+
+    token = request.args.get("token")
+
+    if not token or token != CRON_SECRET:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    result = run_full_best_seller_sync()
+    return jsonify(result)
