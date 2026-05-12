@@ -8,7 +8,7 @@ from endpoints.orders_endpoint import shopify_graphql
 
 best_sellers_bp = Blueprint("best_sellers_bp", __name__)
 
-EXCLUDED_VARIANTS = ['2 ml', '1 ml sample', '1.5 ml sample', '10 ml', '15 ml']
+EXCLUDED_VARIANTS = ['2 ml', '1 ml sample', '1.5 ml sample', '10 ml', '15 ml', '5 ml']
 EXCLUDED_PRODUCTS = ['Gift Card H Parfums']  # 🎁 Nom exact du produit
 
 
